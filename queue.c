@@ -26,6 +26,9 @@ queue_t *q_new()
 {
     queue_t *q = malloc(sizeof(queue_t));
     /* What if malloc returned NULL? */
+    if (q == NULL) {
+        return NULL;
+    }
     q->head = NULL;
     q->tail = NULL;
     q->size = 0;
@@ -38,6 +41,14 @@ void q_free(queue_t *q)
     /* How about freeing the list elements and the strings? */
     /* Free queue structure */
     // free(q-> value);
+    list_ele_t *tmp = q->head;
+    while (q->head != NULL) {
+        tmp = q->head;
+        // free(q->head->value);
+        q->head = q->head->next;
+        free(tmp->value);
+        free(tmp);
+    }
     free(q);
 }
 
@@ -60,7 +71,7 @@ bool q_insert_head(queue_t *q, char *s)
     /* Don't forget to allocate space for the string and copy it */
     /* What if either call to malloc returns NULL? */
     newh->next = q->head;
-    newh->value = malloc(sizeof(char) * (strlen(s)));
+    newh->value = malloc(sizeof(char) * (strlen(s) + 1));
     strcpy(newh->value, s);
     if (q->head == NULL) {
         q->tail = newh;
@@ -84,7 +95,7 @@ bool q_insert_tail(queue_t *q, char *s)
     /* Remember: It should operate in O(1) time */
     list_ele_t *newQ;
     newQ = malloc(sizeof(list_ele_t));
-    newQ->value = malloc(sizeof(char) * (strlen(s)));
+    newQ->value = malloc(sizeof(char) * (strlen(s) + 1));
     strcpy(newQ->value, s);
     q->tail->next = newQ;
     q->tail = newQ;
@@ -104,14 +115,18 @@ bool q_insert_tail(queue_t *q, char *s)
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
     /* You need to fix up this code. */
-    if (q->head->value != NULL) {
+    if (q == NULL || q->size == 0) {
+        return false;
+    }
+    if (bufsize != 0) {
+        memset(sp, '$', bufsize);
         strcpy(sp, q->head->value);
     }
-    list_ele_t *temp = q->head;
+    list_ele_t *tmp = q->head;
     q->head = q->head->next;
-    q->size -= 1;
-    free(temp->value);
-    free(temp);
+    free(tmp->value);
+    free(tmp);
+    q->size--;
     return true;
 }
 
@@ -136,4 +151,19 @@ int q_size(queue_t *q)
 void q_reverse(queue_t *q)
 {
     /* You need to write the code for this function */
+    if (q == NULL) {
+        return;
+    }
+    int temp = q->size;
+    list_ele_t *t;
+    for (int i = 0; i < q->size; i++) {
+        temp--;
+        t = q->head;
+        for (int z = 0; z < temp; z++) {
+            *(t->value) ^= *(t->next->value);
+            *(t->next->value) ^= *(t->value);
+            *(t->value) ^= *(t->next->value);
+            t = t->next;
+        }
+    }
 }
