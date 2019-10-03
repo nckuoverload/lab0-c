@@ -66,7 +66,6 @@ void q_free(queue_t *q)
 bool q_insert_head(queue_t *q, char *s)
 {
     if (q == NULL) {
-        printf("please new a queue first \n");
         return false;
     }
     list_ele_t *newh;
